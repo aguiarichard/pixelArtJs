@@ -8,46 +8,84 @@ const coresRecentesDois = document.querySelector('[data-cores-recentes-dois]')
 const coresRecentesTres = document.querySelector('[data-cores-recentes-tres]')
 const coresRecentesQuatro = document.querySelector('[data-cores-recentes-quatro]')
 const coresRecentesCinco = document.querySelector('[data-cores-recentes-cinco]')
+const tamanhoElemento = document.querySelector('[data-tamanho]')
+const painelDesenho = document.querySelector('[data-painel-desenho]')
 const richard = document.querySelector('[data-richard]')
+let tamanho = tamanhoElemento.value
+let draw
+
+function popularPainelDesenho(tamanho) {
+    painelDesenho.style.setProperty('--tamanho', tamanho)
+    
+    for (let i = 0; i < tamanho * tamanho; i++) {
+        const div = document.createElement('div')
+        div.classList.add('celulas')
+        painelDesenho.appendChild(div)
+        
+        div.addEventListener('mouseover', () => {
+            if(!draw) return
+            
+            div.style.backgroundColor = cor.value
+            atualizarCoresRecentes()
+        })
+
+        div.addEventListener('mousedown', () => {
+            
+            div.style.backgroundColor = cor.value
+            atualizarCoresRecentes()
+        })
+    }
+}
+
+window.addEventListener('mousedown', () => {
+    draw = true
+})
+
+window.addEventListener('mouseup', () => {
+    draw = false
+})
+
+function reset() {
+    painelDesenho.innerHTML = ''
+
+    popularPainelDesenho(tamanho)
+}
+
+deleteAll.addEventListener('click', () => {
+    const apagarDesenho = confirm('Deseja mesmo apagar todo o desenho?')
+
+    if (apagarDesenho) reset()
+})
+
+tamanhoElemento.addEventListener('keyup', () => {
+    tamanho = tamanhoElemento.value
+    reset()
+})
+
+popularPainelDesenho(tamanho)
 
 cor.addEventListener('change', () => {
-    if (cor.value != '#ffffff') {
+    if (cor.value != '#A647FF') {
         richard.style.color = cor.value
     }
 
 }, false)
 
 borracha.addEventListener('click', () => {
-    cor.value = '#ffffff'
+    cor.value = '#777777'
 })
 
-deleteAll.addEventListener('click', () => {
-    const apagarDesenho = confirm('Deseja mesmo apagar todo o desenho?')
-
-    if (apagarDesenho) {
-        for (const celula of celulas) {
-            celula.style.backgroundColor = '#ffffff';
-        }
-    }
-})
-
-for (const celula of celulas) {
-    celula.addEventListener('click', () => {
-        celula.style.backgroundColor = cor.value;
-
-        atualizarCoresRecentes()
-    })
-}
 
 for (const corRecente of coresRecentes) {
     corRecente.addEventListener('click', () => {
         cor.value = rgbParaHexArray(corRecente.style.backgroundColor)
 
-        if (cor.value != '#ffffff') {
+        if (cor.value != 'A647FF') {
             richard.style.color = cor.value
         }
     })
 }
+
 
 function atualizarCoresRecentes() {
     let corAtualIgualAlgumaCorRecente
@@ -60,8 +98,8 @@ function atualizarCoresRecentes() {
 
     if (corAtualIgualAlgumaCorRecente) return
 
-    const corAtualBranca = cor.value == '#ffffff'
-    if (corAtualBranca) return
+    const corAtualIgualCorDeFundo = cor.value == '#777777'
+    if (corAtualIgualCorDeFundo) return
 
 
     if (coresRecentesUm.style.backgroundColor === '') {
@@ -103,7 +141,6 @@ function rgbParaHex(r, g, b) {
 
 function componentParaHex(c) {
     var hex = c.toString(16);
-    console.log(hex)
     return hex.length == 1 ? "0" + hex : hex;
 }
 
@@ -115,8 +152,6 @@ function rgbParaHexArray(rgb) {
         .replace(',', '')
         .replace(',', '')
         .split(' ')
-
-    console.log(_rgb)
 
     const hex = rgbParaHex(+_rgb[0], +_rgb[1], +_rgb[2])
 
